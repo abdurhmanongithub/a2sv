@@ -3,6 +3,30 @@ import { BlogModel } from "../models/BlogModel"; // Your BlogModel where Prisma 
 import prisma from "../utils/prisma"; // Prisma instance
 import { JwtPayload } from "jsonwebtoken";
 
+export const searchBlogs = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { query } = req.query; // Search query from request query parameters
+
+  try {
+    const blogs = await prisma.blog.findMany({
+      where: {
+        OR: [
+          { title: { contains: query as string } },
+          { content: { contains: query as string } },
+        ],
+      },
+    });
+
+    return res.status(200).json(blogs);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Something went wrong. Please try again later." });
+  }
+};
+
 // Create a new blog
 export const createBlog = async (req: Request, res: Response): Promise<any> => {
   const { title, content } = req.body; // Assuming userId is passed to associate the blog
