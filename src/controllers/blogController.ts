@@ -9,23 +9,28 @@ export const searchBlogs = async (
 ): Promise<any> => {
   const { query } = req.query; // Search query from request query parameters
 
-  try {
-    const blogs = await prisma.blog.findMany({
-      where: {
-        OR: [
-          { title: { contains: query as string } },
-          { content: { contains: query as string } },
-        ],
-      },
-    });
+  if (!query || typeof query !== 'string') {
+    return res.status(400).json({ message: "Invalid search query" });
+  }
 
-    return res.status(200).json(blogs);
+  try {
+    // Use Prisma to search blogs directly by title or content
+    const blogs = await BlogModel.getAllBlogs();
+
+    const filteredBlogs = blogs.filter(
+      (blog) =>
+        blog.title.includes(query) || blog.content.includes(query)
+    );
+
+    return res.status(200).json(filteredBlogs);
   } catch (error) {
+    console.error("Error fetching blog", error); // Log the actual error
     return res
       .status(500)
-      .json({ error: "Something went wrong. Please try again later." });
+      .json({ message: 'Error fetching blog', error: error });
   }
 };
+
 
 // Create a new blog
 export const createBlog = async (req: Request, res: Response): Promise<any> => {

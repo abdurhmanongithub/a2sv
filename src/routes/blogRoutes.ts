@@ -30,12 +30,12 @@ import { createLike, removeLike, getLikesByBlog, checkLikeByUser } from "../cont
 const upload = multer({ storage: storage });
 const router = Router();
 
+router.get("/search", searchBlogs); // Search blogs by title, content, or tags
 router.get("/", getAllBlogs); // Get all blogs
 router.get("/:id", getBlogById); // Get blog by ID
 router.post("/", upload.single("photo"), createBlog); // Create new blog
 router.put("/:id", upload.single("photo"), updateBlog); // Update blog
 router.delete("/:id", deleteBlog); // Delete blog
-router.get("/search", searchBlogs); // Search blogs by title, content, or tags
 
 router.post("/:blogId/rating", createRating); // Create a new rating
 router.put("/:blogId/rating", updateRating); // Update an existing rating
