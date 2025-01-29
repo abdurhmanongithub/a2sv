@@ -1,5 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+
+// Ensure you have this custom type declaration somewhere in your project
+// If you haven't done it yet, add it to src/types/express/index.d.ts
+declare namespace Express {
+  export interface Request {
+    user?: { userId: number };
+  }
+}
 
 const authenticateToken = (req: Request, res: Response, next: NextFunction): any => {
   const token = req.headers["authorization"]?.split(" ")[1];
@@ -15,8 +23,19 @@ const authenticateToken = (req: Request, res: Response, next: NextFunction): any
       return res.sendStatus(403); // Forbidden
     }
 
-    (req as any).user = decoded; // ✅ Attach decoded user payload to request object
-    next(); // ✅ Call next() to continue processing
+    // TypeScript doesn't know that decoded is an object, so we need to explicitly cast it
+    if (decoded && typeof decoded !== 'string') {
+      // Cast `decoded` to the appropriate type (JwtPayload or any object with a userId)
+      const { userId } = decoded as { userId: number };
+
+      // Attach the userId to the request object for later use in the route handlers
+      (req as any).user = { userId };
+
+      console.log(decoded);
+      next(); // Continue to the next middleware/route handler
+    } else {
+      return res.sendStatus(403); // Invalid token
+    }
   });
 };
 

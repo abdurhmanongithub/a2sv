@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use("/api", authRoutes);
 app.use("/api/users", authenticateToken, userRoutes);
-// app.use("/api/blogs", blogRoutes);
+app.use("/api/blogs",authenticateToken, blogRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

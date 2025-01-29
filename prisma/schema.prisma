@@ -19,8 +19,12 @@ model User {
   password String                              // Password
   name     String?                              // Name
   bio      String?                              // Bio
-  photo      String?                              // Bio
+  photo    String?                              // Bio
   role     Role    @default(USER)               // Role (Admin/User)
+  blogs    Blog[]        // One-to-Many (User -> Blogs)
+  ratings  BlogRating[]  // One-to-Many (User -> BlogRatings)
+  comments Comment[]     // One-to-Many (User -> Comments)
+  likes    Like[]        // One-to-Many (User -> Likes)
 }
 
 enum Role {
@@ -28,3 +32,51 @@ enum Role {
   USER
 }
 
+model Blog {
+  id      Int    @id @default(autoincrement()) // BlogID (Primary Key)
+  userId  Int                                 // UserID (Foreign Key)
+  title   String                              // Title
+  content String                              // Content
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ratings   BlogRating[] // One-to-Many (Blog -> Ratings)
+  comments  Comment[]    // One-to-Many (Blog -> Comments)
+  likes     Like[]       // One-to-Many (Blog -> Likes)
+}
+
+model BlogRating {
+  id       Int @id @default(autoincrement()) // RatingID (Primary Key)
+  userId   Int                              // UserID (Foreign Key)
+  blogId   Int                              // BlogID (Foreign Key)
+  rating   Int                              // RatingValue (1-5)
+
+  // Relations
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog  Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId]) // Ensures a user can rate a blog only once
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement()) // CommentID (Primary Key)
+  userId  Int                                 // UserID (Foreign Key)
+  blogId  Int                                 // BlogID (Foreign Key)
+  content String                              // Content
+
+  // Relations
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog  Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id     Int @id @default(autoincrement()) // LikeID (Primary Key)
+  userId Int                              // UserID (Foreign Key)
+  blogId Int                              // BlogID (Foreign Key)
+
+  // Relations
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog  Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId]) // Ensures a user can like a blog only once
+}
