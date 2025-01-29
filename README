@@ -1,0 +1,21 @@
+# Blog Posting Platform - Backend
+
+This project is a backend system for a blog posting platform, where users can register, log in, create blog posts, comment, rate, like, and search for blog posts and users. The platform includes features such as user authentication with JWT, blog management, blog ratings, comments, and search functionality.
+
+## Table of Contents
+- [Installation](#installation)
+- [Technologies Used](#technologies-used)
+- [Features](#features)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [License](#license)
+
+## Installation
+
+To set up the project locally, follow these steps:
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/abdurhmanongithub/a2sv.git
+cd blog-posting-platform-backend
