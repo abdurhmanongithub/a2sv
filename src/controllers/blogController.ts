@@ -9,7 +9,7 @@ export const searchBlogs = async (
 ): Promise<any> => {
   const { query } = req.query; // Search query from request query parameters
 
-  if (!query || typeof query !== 'string') {
+  if (!query || typeof query !== "string") {
     return res.status(400).json({ message: "Invalid search query" });
   }
 
@@ -18,8 +18,7 @@ export const searchBlogs = async (
     const blogs = await BlogModel.getAllBlogs();
 
     const filteredBlogs = blogs.filter(
-      (blog) =>
-        blog.title.includes(query) || blog.content.includes(query)
+      (blog) => blog.title.includes(query) || blog.content.includes(query)
     );
 
     return res.status(200).json(filteredBlogs);
@@ -27,10 +26,9 @@ export const searchBlogs = async (
     console.error("Error fetching blog", error); // Log the actual error
     return res
       .status(500)
-      .json({ message: 'Error fetching blog', error: error });
+      .json({ message: "Error fetching blog", error: error });
   }
 };
-
 
 // Create a new blog
 export const createBlog = async (req: Request, res: Response): Promise<any> => {
@@ -108,15 +106,25 @@ export const getBlogById = async (
 };
 
 // Update a blog
-export const updateBlog = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateBlog = async (req: Request, res: Response): Promise<any> => {
   const blogId = parseInt(req.params.id, 10);
 
   const { title, content } = req.body;
 
   try {
+    const blog = await BlogModel.getBlogById(blogId);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+    const userId = req.user?.userId; // This should now work correctly without type errors
+
+    if (blog.userId !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not the owner of this blog" });
+    }
+
     const updatedBlogData = {
       title,
       content,
@@ -134,13 +142,23 @@ export const updateBlog = async (
 };
 
 // Delete a blog
-export const deleteBlog = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const deleteBlog = async (req: Request, res: Response): Promise<any> => {
   const blogId = parseInt(req.params.id, 10);
+
   try {
     const blog = await BlogModel.getBlogById(blogId);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+    const userId = req.user?.userId; // This should now work correctly without type errors
+
+    if (blog.userId !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not the owner of this blog" });
+    }
+
     if (!blog) res.status(500).json({ message: "Blog not found" });
     const deletedBlog = await BlogModel.deleteBlog(blogId);
     res.status(200).json(deletedBlog);
